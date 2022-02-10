@@ -3,8 +3,10 @@ const createLogger = require('js-libs/logger').default
 const HttpServer = require('js-libs/http-server').default
 const { once } = require('events')
 
-;(new HttpServer({
-    logger: createLogger('info'),
+const logger = createLogger('info')
+
+const httpServer = new HttpServer({
+    logger,
     port: 80,
     webUiFilesPath: __dirname,
     api: {
@@ -62,4 +64,11 @@ const { once } = require('events')
             }
         ]
     }
-})).start()
+})
+
+httpServer.start()
+
+process.on('SIGTERM', () => {
+    logger.info('SIGTERM received. Stopping...')
+    httpServer.stop()
+})
