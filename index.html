@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Download video/audio</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="https://getbootstrap.com/docs/4.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  </head>
+
+  <body class="text-center">
+    <form class="form-signin" style="width: 400px; margin: auto; margin-top: 50px;" action="/download">
+      <h1 class="h3 mb-3 font-weight-normal">Download video/audio</h1>
+      <label for="inputEmail" class="sr-only">Youtube (or not) Url</label>
+      <input type="text" id="inputEmail" name="url" class="form-control" placeholder="Youtube (or not) Url" required autofocus>
+      <div class="checkbox mb-3">
+        <label>
+          <input type="checkbox" name="type" value="audio"> Only audio
+        </label>
+      </div>
+      <button class="btn btn-lg btn-primary btn-block" type="submit">Download</button>
+    </form>
+
+  </body>
+</html>

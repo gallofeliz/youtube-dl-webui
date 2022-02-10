@@ -1,0 +1,10 @@
+version: '3.5'
+services:
+  youtubedl:
+    #restart: unless-stopped
+    build:
+      context: .
+    environment:
+        - TZ=Europe/Paris
+    ports:
+      - "8080:80"

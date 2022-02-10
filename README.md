@@ -1,2 +1,5 @@
 # youtube-dl-kiss-ui
-Youtube-dl KISS UI
+
+A simple Web UI to download Video/Sound from youtube and others platforms. NOT a download manager (you can use Aria or others !).
+
+![DEMO](demo.gif)

@@ -1,0 +1,22 @@
+{
+  "name": "youtube-dl-kiss-ui",
+  "version": "1.0.0",
+  "description": "Youtube-dl KISS UI",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gallofeliz/youtube-dl-kiss-ui.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gallofeliz/youtube-dl-kiss-ui/issues"
+  },
+  "homepage": "https://github.com/gallofeliz/youtube-dl-kiss-ui#readme",
+  "dependencies": {
+    "js-libs": "github:gallofeliz/js-libs"
+  }
+}
