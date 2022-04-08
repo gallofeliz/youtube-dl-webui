@@ -6,6 +6,7 @@ const tmpdir = require('os').tmpdir()
 const logger = createLogger('info')
 const uuid4 = require('uuid').v4
 const fs = require('fs')
+const glob = require('glob')
 
 const httpServer = new HttpServer({
     logger,
@@ -35,7 +36,8 @@ const httpServer = new HttpServer({
                             readStream.close()
                         }
                         if (tmpPath) {
-                            fs.unlinkSync(tmpPath)
+                            const pattern = tmpPath.substring(0, tmpPath.lastIndexOf('.') + 1) + '*'
+                            glob.sync(pattern).forEach(file => fs.unlinkSync(file))
                         }
                     }
 
