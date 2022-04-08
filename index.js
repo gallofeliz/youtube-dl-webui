@@ -1,6 +1,7 @@
 const runProcess = require('js-libs/process').default
 const createLogger = require('js-libs/logger').default
 const HttpServer = require('js-libs/http-server').default
+const { handleExitSignals } = require('js-libs/exit-handle')
 const { once } = require('events')
 const tmpdir = require('os').tmpdir()
 const logger = createLogger('info')
@@ -130,7 +131,7 @@ const httpServer = new HttpServer({
 
 httpServer.start()
 
-process.on('SIGTERM', () => {
-    logger.info('SIGTERM received. Stopping...')
+handleExitSignals(() => {
+    logger.info('Exit Signal received. Stopping...')
     httpServer.stop()
 })
