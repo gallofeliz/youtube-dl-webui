@@ -135,9 +135,41 @@ const glob = require('glob')
     await httpServer.start()
     logger.info('Started !')
 
+    let updateProcess
+
+    async function updateYtdl() {
+        if (updateProcess) {
+            logger.warning('Update already running ???')
+            return
+        }
+
+        updateProcess = runProcess({
+            cmd: 'yt-dlp',
+            args: ['--update'],
+            logger,
+            outputType: 'text'
+        })
+
+        try {
+            await once(updateProcess, 'finish')
+        } catch (e) {
+            logger.warning('Update failed', {e})
+        } finally {
+            updateProcess = null
+        }
+    }
+
+    const updateInterval = setInterval(updateYtdl, 1000 * 60 * 60 * 24) // 1 day
+
+    updateYtdl()
+
     handleExitSignals(() => {
         logger.info('Exit Signal received. Stopping...')
         httpServer.stop()
+        clearInterval(updateInterval)
+        if (updateProcess) {
+            updateProcess.abort()
+        }
     })
 
 })()
