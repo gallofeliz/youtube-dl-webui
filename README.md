@@ -9,3 +9,11 @@ If possible, it will stream directly from Youtube (or others websites) to your b
 Uses yt-dlp, and updates it each day
 
 ![DEMO](demo.gif)
+
+## Alternatives
+
+- The CLI tool (That makes 99% of the job) : https://github.com/yt-dlp/yt-dlp
+- WebUIs :
+  - https://github.com/d0u9/youtube-dl-webui
+  - https://github.com/timendum/Youtube-dl-WebUI
+  - https://github.com/manbearwiz/youtube-dl-server
