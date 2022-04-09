@@ -1,6 +1,6 @@
 # youtube-dl-stream-webui
 
-For lazy people : download videos and audio for many platforms + webui + direct stream to your browser + ytb-dl auto-update
+For lazy people : download videos and audio for many platforms + webui + direct stream to your browser + ytb-dl auto-update + Docker native + light + Raspberry PI Compatible
 
 A simple Web UI to download Video/Sound from youtube and others platforms. NOT a download manager (you can use Aria or others !).
 
