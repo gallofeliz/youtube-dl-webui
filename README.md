@@ -17,3 +17,4 @@ Uses yt-dlp, and updates it each day
   - https://github.com/d0u9/youtube-dl-webui
   - https://github.com/timendum/Youtube-dl-WebUI
   - https://github.com/manbearwiz/youtube-dl-server
+  - https://github.com/Tzahi12345/YoutubeDL-Material
