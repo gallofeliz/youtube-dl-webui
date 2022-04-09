@@ -18,3 +18,5 @@ Uses yt-dlp, and updates it each day
   - https://github.com/timendum/Youtube-dl-WebUI
   - https://github.com/manbearwiz/youtube-dl-server
   - https://github.com/Tzahi12345/YoutubeDL-Material
+  - https://github.com/Rudloff/alltube
+- Some GUIs are also available
