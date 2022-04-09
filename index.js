@@ -56,7 +56,8 @@ const glob = require('glob')
                                     '--print', 'filename',
                                     '--print', 'format_id',
                                     '--print', 'filesize',
-                                    '--print', 'ext'
+                                    '--print', 'ext',
+                                    '--no-playlist'
                                 ]),
                                 logger,
                                 outputType: 'multilineText'
@@ -82,7 +83,7 @@ const glob = require('glob')
 
                                 currentProcess = runProcess({
                                     cmd: 'yt-dlp',
-                                    args: ['-f', formatIds[0], url, '-o', '-'],
+                                    args: ['-f', formatIds[0], url, '-o', '-', '--no-playlist'],
                                     logger,
                                     outputStream: res
                                 })
@@ -127,7 +128,29 @@ const glob = require('glob')
 
                         res.end()
                     }
-                }
+                },
+                // {
+                //     method: 'get',
+                //     path: '/playlist-videos-urls',
+                //     async handler(req, res) {
+                //         const url = req.query.url
+
+                //         currentProcess = runProcess({
+                //             cmd: 'yt-dlp',
+                //             args: [
+                //                 url,
+                //                 '--print', 'original_url',
+                //                 '--flat-playlist'
+                //             ],
+                //             logger,
+                //             outputType: 'multilineText'
+                //         })
+
+                //         const [result] = await once(currentProcess, 'finish')
+
+                //         res.json(result)
+                //     }
+                // }
             ]
         }
     })
