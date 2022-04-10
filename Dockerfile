@@ -13,7 +13,6 @@ WORKDIR /app
 
 ADD package.json package-lock.json ./
 
-RUN echo 1
 RUN npm i
 
 ADD index.js index.html ./
