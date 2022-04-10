@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/gallofeliz/youtube-dl-kiss-ui#readme",
   "dependencies": {
-    "glob": "^7.2.0",
+    "fs-extra": "^10.0.1",
     "js-libs": "github:gallofeliz/js-libs",
     "uuid": "^8.3.2"
   }

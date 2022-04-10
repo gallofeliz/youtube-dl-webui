@@ -13,16 +13,27 @@
 
   <body class="text-center">
     <form class="form-signin" style="width: 400px; margin: auto; margin-top: 50px;" action="/download">
-      <h1 class="h3 mb-3 font-weight-normal">Download video/audio</h1>
-      <label for="inputEmail" class="sr-only">Youtube (or not) Url</label>
-      <input type="text" id="inputEmail" name="url" class="form-control" placeholder="Youtube (or not) Url" required autofocus>
-      <div class="checkbox mb-3">
-        <label>
-          <input type="checkbox" name="type" value="audio"> Only audio
-        </label>
+      <h1 class="h3 mb-3 font-weight-normal">Download video/audio(s)</h1>
+      <label for="inputUrls" class="sr-only">Youtube (or not) Url(s)</label>
+      <textarea id="inputUrls" name="urls" class="form-control" placeholder="Youtube (or not) Url(s)" required autofocus></textarea>
+      <div class="checkbox mb-3 mt-2">
+          <label><input type="checkbox" name="onlyAudio" value="true" /> Only audio</label>
+          <label><input type="checkbox" name="ignorePlaylists" value="true" checked /> Ignore Playlists</label>
       </div>
       <button class="btn btn-lg btn-primary btn-block" type="submit">Download</button>
     </form>
 
+    <script type="text/javascript">
+      // Sorry, I did random code and I don't really not what I do
+      // It works on GG Chrome ahah, we're wishing for the best
+      const textarea = document.querySelector('#inputUrls')
+      const scrollOffsetDiff = Math.abs(textarea.scrollHeight - textarea.offsetHeight)
+      textarea.style.minHeight = textarea.offsetHeight + 'px'
+
+      textarea.oninput = () => {
+        textarea.style.height = (textarea.scrollHeight + scrollOffsetDiff) + 'px'
+      }
+
+    </script>
   </body>
 </html>
