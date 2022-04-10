@@ -23,5 +23,17 @@
       <button class="btn btn-lg btn-primary btn-block" type="submit">Download</button>
     </form>
 
+    <script type="text/javascript">
+      // Sorry, I did random code and I don't really not what I do
+      // It works on GG Chrome ahah, we're wishing for the best
+      const textarea = document.querySelector('#inputUrls')
+      const scrollOffsetDiff = Math.abs(textarea.scrollHeight - textarea.offsetHeight)
+      textarea.style.minHeight = textarea.offsetHeight + 'px'
+
+      textarea.oninput = () => {
+        textarea.style.height = (textarea.scrollHeight + scrollOffsetDiff) + 'px'
+      }
+
+    </script>
   </body>
 </html>
