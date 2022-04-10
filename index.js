@@ -55,7 +55,8 @@ const fsExtra = require('fs-extra')
                                 args: [
                                     ...urls,
                                     ...audioOnly ? ['-x'] : [],
-                                    ...ignorePlaylists ? ['--no-playlist'] : []
+                                    ...ignorePlaylists ? ['--no-playlist'] : [],
+                                    '--abort-on-error'
                                 ],
                                 logger,
                                 cwd: sessionPath
@@ -79,6 +80,11 @@ const fsExtra = require('fs-extra')
                                 cleanUp.push(() => tarProcess.abort())
                                 await once(tarProcess, 'finish')
                                 cleanUp.pop()
+
+                                // clean the files as soon as possible to free space
+                                files.forEach(file => {
+                                    fs.unlinkSync(sessionPath + '/' + file)
+                                })
                             }
 
                             res.header('Content-Disposition', 'attachment; filename="'+encodeURIComponent(needZip ? 'videos.tar' : files[0])+'"')
