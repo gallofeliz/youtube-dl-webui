@@ -1,5 +1,7 @@
 # youtube-dl-stream-webui
 
+Notes : I am developing new versions with multiline urls to download multiple videos and/or playlists. To reduce code complexity, I will remove the direct stream for 1 video with one remote file (1 formatId), that is valid usually only for 1 audio file (with best quality)
+
 For lazy people : download videos and audio for many platforms + webui + direct stream to your browser + ytb-dl auto-update + Docker native + light + Raspberry PI Compatible
 
 A simple Web UI to download Video/Sound from youtube and others platforms. NOT a download manager (you can use Aria or others !).
