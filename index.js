@@ -9,7 +9,7 @@ const config = loadConfig({})
 const logger = createLogger(config.loglevel || 'info')
 const uuid4 = require('uuid').v4
 const fs = require('fs')
-const glob = require('glob')
+const fsExtra = require('fs-extra')
 
 ;(async () => {
     const httpServer = new HttpServer({
@@ -22,14 +22,96 @@ const glob = require('glob')
                     method: 'get',
                     path: '/download',
                     async handler(req, res) {
-                        const url = req.query.url
-                        const type = req.query.type || 'video'
-                        const audioOnly = type === 'audio'
+                        const urls = req.query.urls.split('\n').map(v => v.trim()).filter(v => v)
+                        const audioOnly = req.query.onlyAudio === 'true' ? true : false
+                        const ignorePlaylists = req.query.ignorePlaylists === 'true' ? true : false
+
+                        const sessionId = uuid4()
+                        const sessionPath = tmpdir + '/' + sessionId
+
+                        fs.mkdirSync(sessionPath)
+
+                        const cleanUp = [
+                            () => { fsExtra.removeSync(sessionPath) }
+                        ]
+
+                        function doCleanUp() {
+                            cleanUp.reverse().forEach(fn => fn())
+                        }
+
+                        req.once('close', () => {
+                        })
+
+                        try {
+
+
+                            const downloadProcess = runProcess({
+                                cmd: 'yt-dlp',
+                                args: [
+                                    ...urls,
+                                    ...audioOnly ? ['-x'] : [],
+                                    ...ignorePlaylists ? ['--no-playlist'] : []
+                                ],
+                                logger,
+                                cwd: sessionPath
+                            })
+
+                            cleanUp.push(() => downloadProcess.abort())
+                            await once(downloadProcess, 'finish')
+                            cleanUp.pop()
+
+                            const files = fs.readdirSync(sessionPath)
+                            const needZip = files.length > 1
+
+                            if (needZip) {
+                                const tarProcess = runProcess({
+                                    cwd: sessionPath,
+                                    logger,
+                                    cmd: 'tar',
+                                    args: ['-cf', 'build.tar', ...files]
+                                })
+
+                                cleanUp.push(() => tarProcess.abort())
+                                await once(tarProcess, 'finish')
+                                cleanUp.pop()
+                            }
+
+                            res.header('Content-Disposition', 'attachment; filename="'+encodeURIComponent(needZip ? 'videos.tar' : files[0])+'"')
+
+                            const stats = fs.statSync(sessionPath + '/' + (needZip ? 'build.tar' : files[0]))
+                            res.header('Content-Length', stats.size.toString())
+
+                            const readStream = fs.createReadStream(sessionPath + '/' + (needZip ? 'build.tar' : files[0]));
+                            readStream.pipe(res)
+
+                            cleanUp.push(() => readStream.close())
+                            await once(readStream, 'close')
+                            cleanUp.pop()
+
+
+                        } catch (e) {
+
+                        } finally {
+
+                        }
+
+
+
+
+
+                        res.end()
+
+                        return
+
+
+
+
+
 
                         let currentProcess
                         let tmpPath
                         let userStop = false
-                        let readStream
+                        //let readStream
 
                         const close = () => {
                             userStop = true
