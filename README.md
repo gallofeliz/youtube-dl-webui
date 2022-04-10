@@ -1,12 +1,14 @@
 # youtube-dl-stream-webui
 
-For lazy people : download videos and audio for many platforms + webui + direct stream to your browser + ytb-dl auto-update + Docker native + light + Raspberry PI Compatible
+Keys: download videos and audio for many platforms + webui + multi urls and playlists + download to your browser + ytb-dl auto-update + Docker native + light + Raspberry PI Compatible
 
 A simple Web UI to download Video/Sound from youtube and others platforms. NOT a download manager (you can use Aria or others !).
 
-If possible, it will stream directly from Youtube (or others websites) to your browser, else will download the file and stream to your browser. In this last case, the browser can wait a long time before receive data (can be a problem with big videos ?).
+## Warning
 
-Uses yt-dlp, and updates it each day
+To handle multi urls, playlist and to offer the best video/sound quality, the app doesn't stream directly anymore. It will prepare the files and download the build.
+
+Note that the prepare time can take a long time and your browser will wait. It is possible the browser triggers a timeout and if it's the case, we have to find a solution (regular http 100 ?). If it's not possible, we will need to create a tempory link but it will complexify the process (currently all the session is attached to the http request)
 
 ![DEMO](demo.gif)
 

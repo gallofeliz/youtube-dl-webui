@@ -29,21 +29,26 @@ const fsExtra = require('fs-extra')
                         const sessionId = uuid4()
                         const sessionPath = tmpdir + '/' + sessionId
 
-                        fs.mkdirSync(sessionPath)
+                        const cleanUp = []
 
-                        const cleanUp = [
-                            () => { fsExtra.removeSync(sessionPath) }
-                        ]
+                        let userStop = false
 
                         function doCleanUp() {
                             cleanUp.reverse().forEach(fn => fn())
+                            cleanUp.splice(0, cleanUp.length)
                         }
 
-                        req.once('close', () => {
-                        })
-
                         try {
+                            const onReqClose = () => {
+                                userStop = true
+                                doCleanUp()
+                                res.end() // Not sure is usefull but to avoid memory leak
+                            }
 
+                            req.once('close', onReqClose)
+
+                            fs.mkdirSync(sessionPath)
+                            cleanUp.push(() => { fsExtra.removeSync(sessionPath) })
 
                             const downloadProcess = runProcess({
                                 cmd: 'yt-dlp',
@@ -88,151 +93,20 @@ const fsExtra = require('fs-extra')
                             await once(readStream, 'close')
                             cleanUp.pop()
 
+                            doCleanUp()
 
-                        } catch (e) {
+                            req.off('close', onReqClose)
+                            res.end()
 
-                        } finally {
-
-                        }
-
-
-
-
-
-                        res.end()
-
-                        return
-
-
-
-
-
-
-                        let currentProcess
-                        let tmpPath
-                        let userStop = false
-                        //let readStream
-
-                        const close = () => {
-                            userStop = true
-                            if (currentProcess) {
-                                currentProcess.abort()
-                            }
-                            if (readStream) {
-                                readStream.close()
-                            }
-                            if (tmpPath) {
-                                const pattern = tmpPath.substring(0, tmpPath.lastIndexOf('.') + 1) + '*'
-                                glob.sync(pattern).forEach(file => fs.unlinkSync(file))
-                            }
-                        }
-
-                        req.once('close', close)
-
-                        try {
-                            // Get infos
-                            currentProcess = runProcess({
-                                cmd: 'yt-dlp',
-                                args: (audioOnly ? ['-x'] : []).concat([
-                                    url,
-                                    '--print', 'filename',
-                                    '--print', 'format_id',
-                                    '--print', 'filesize',
-                                    '--print', 'ext',
-                                    '--no-playlist'
-                                ]),
-                                logger,
-                                outputType: 'multilineText'
-                            })
-
-                            const [result] = await once(currentProcess, 'finish')
-                            currentProcess = null
-
-                            const [filename, formatIds, filesize, extension] = [
-                                result[0],
-                                result[1].split('+'),
-                                result[2] === 'NA' ? null : parseInt(result[2], 10),
-                                result[3]
-                            ]
-
-                            res.header('Content-Disposition', 'attachment; filename="'+encodeURIComponent(filename)+'"')
-
-                            if (filesize) {
-                               res.header('Content-Length', filesize.toString())
-                            }
-
-                            if (formatIds.length === 1) {
-
-                                currentProcess = runProcess({
-                                    cmd: 'yt-dlp',
-                                    args: ['-f', formatIds[0], url, '-o', '-', '--no-playlist'],
-                                    logger,
-                                    outputStream: res
-                                })
-
-                                await once(currentProcess, 'finish')
-                                currentProcess = null
-                            } else {
-
-                                tmpPath = tmpdir + '/' + uuid4() + '.' + extension
-
-                                currentProcess = runProcess({
-                                    cmd: 'yt-dlp',
-                                    args: ['-f', formatIds.join('+'), url, '-o', tmpPath],
-                                    logger,
-                                    outputType: 'text'
-                                })
-
-                                await once(currentProcess, 'finish')
-                                currentProcess = null
-
-                                if (!filesize) {
-                                    const stats = fs.statSync(tmpPath)
-                                    res.header('Content-Length', stats.size.toString())
-                                }
-
-                                readStream = fs.createReadStream(tmpPath);
-                                readStream.pipe(res)
-
-                                await once(readStream, 'close')
-                                readStream = null
-                                fs.unlinkSync(tmpPath)
-                                tmpPath = null
-                            }
 
                         } catch (e) {
                             if (!userStop) {
+                                doCleanUp()
                                 throw e
                             }
-                        } finally {
-                            req.off('close', close)
                         }
-
-                        res.end()
                     }
-                },
-                // {
-                //     method: 'get',
-                //     path: '/playlist-videos-urls',
-                //     async handler(req, res) {
-                //         const url = req.query.url
-
-                //         currentProcess = runProcess({
-                //             cmd: 'yt-dlp',
-                //             args: [
-                //                 url,
-                //                 '--print', 'original_url',
-                //                 '--flat-playlist'
-                //             ],
-                //             logger,
-                //             outputType: 'multilineText'
-                //         })
-
-                //         const [result] = await once(currentProcess, 'finish')
-
-                //         res.json(result)
-                //     }
-                // }
+                }
             ]
         }
     })
