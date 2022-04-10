@@ -2,7 +2,7 @@
 
 Keys: download videos and audio for many platforms + webui + multi urls and playlists + download to your browser + ytb-dl auto-update + Docker native + light + Raspberry PI Compatible
 
-A simple Web UI to download Video/Sound from youtube and others platforms. NOT a download manager (you can use Aria or others !).
+A simple Web UI to download Video/Sound from youtube and others platforms. NOT a download manager (you can use Aria or others !). *The main difference with others youtube-dl webUi is that this service only extracts video/audio from websites to your computer, and not to itself (central space). This service has its best place into your home network and every device can extract/download a video without sharing it with others.*
 
 ## Notice
 
