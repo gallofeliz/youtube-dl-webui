@@ -10,7 +10,7 @@ To handle multi urls, playlist and to offer the best video/sound quality, the ap
 
 Note that the prepare time can take a long time and your browser will wait. It is possible the browser triggers a timeout and if it's the case, we have to find a solution (regular http 100 ?). If it's not possible, we will need to create a tempory link but it will complexify the process (currently all the session is attached to the http request)
 
-If browser waiting is not a good solution for the futur, a solution should be to have "jobs" with first yt-download operation, then browser triggers download to him and then the session is cleaned. It will be an intermediate solution between the very simple "this app is a proxy" and a full download manager.
+If browser waiting is not a good solution for the futur, a solution should be to have "jobs" with first yt-download operation, then browser triggers download to him and then the session is cleaned. It will be an intermediate solution between the very simple "this app is a proxy" and a full download manager. Alternative : Use https://www.npmjs.com/package/tar-stream to stream the tar and generate it on fly, removing files on fly, etc, but will continue to write on the disk (only direct video stream is acceptable to avoid that)
 
 ![DEMO](demo.gif)
 
