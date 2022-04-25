@@ -17,13 +17,14 @@ interface Download {
     uid: string
     onlyAudio: boolean
     ignorePlaylists: boolean
-    status: 'YOUTUBE-QUEUE' | 'YOUTUBE-DOWNLOADING' | 'YOUTUBE-ERROR' | 'READY' | 'DONE',
+    status: 'YOUTUBE-QUEUE' | 'YOUTUBE-DOWNLOADING' | 'YOUTUBE-ERROR' | 'READY' | 'BROWSER-DOWNLOAD' | 'DONE',
     youtubeJob: Job
     workdir: string,
     targetFile?: string
+    autoBrowserDownload: boolean
 }
 
-type DownloadRequest = Pick<Download, 'urls' | 'onlyAudio' | 'ignorePlaylists'>
+type DownloadRequest = Pick<Download, 'urls' | 'onlyAudio' | 'ignorePlaylists' | 'autoBrowserDownload'>
 
 const downloads: Download[] = []
 const downloadManager = new JobsManager(logger)
@@ -124,6 +125,10 @@ const downloadManager = new JobsManager(logger)
                         const uid = req.params.uid as string
                         const download = downloads.find(d => d.uid === uid)!
 
+                        download.autoBrowserDownload = false
+
+                        download.status = 'BROWSER-DOWNLOAD'
+
                         res.header('Content-Disposition', 'attachment; filename="'+encodeURIComponent(download.targetFile!)+'"')
                         const fullPath = download.workdir + '/' + download.targetFile!
                         const stats = fs.statSync(fullPath)
@@ -137,6 +142,7 @@ const downloadManager = new JobsManager(logger)
                         fsExtra.removeSync(download.workdir)
                         download.status = 'DONE'
 
+                        // Bad way ... Blocks the process stop
                         setTimeout(() => {
                             downloads.splice(downloads.indexOf(download), 1)
                         }, 1000 * 60)

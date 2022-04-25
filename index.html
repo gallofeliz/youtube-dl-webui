@@ -43,6 +43,7 @@
       <div class="checkbox mb-3 mt-2">
           <label><input type="checkbox" name="onlyAudio" value="true" /> Only audio</label>
           <label><input type="checkbox" name="ignorePlaylists" value="true" checked /> Ignore Playlists</label>
+          <label><input type="checkbox" name="autoBrowserDownload" value="true" checked /> Auto Browser Download</label>
       </div>
       <button class="btn btn-lg btn-primary btn-block" id="submit">Download</button>
 
@@ -102,7 +103,15 @@
             const link = document.createElement('a')
             link.href = '/download/' + download.uid
             link.innerText = download.status
+            link.onclick = () => setTimeout(refreshList, 100)
             status.append(link)
+
+            if (download.autoBrowserDownload) {
+              setTimeout(() => {
+                window.location.href = link.href
+                setTimeout(refreshList, 100)
+              }, 100)
+            }
           } else {
             status.innerText = download.status
           }
@@ -122,12 +131,13 @@
         const urls = document.querySelector('#inputUrls').value.split('\n').map(v => v.trim()).filter(v => v)
         const onlyAudio = document.querySelector('input[name="onlyAudio"]').checked
         const ignorePlaylists = document.querySelector('input[name="ignorePlaylists"]').checked
+        const autoBrowserDownload = document.querySelector('input[name="autoBrowserDownload"]').checked
 
         try {
           const response = await fetch('/download', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ urls, onlyAudio, ignorePlaylists })
+            body: JSON.stringify({ urls, onlyAudio, ignorePlaylists, autoBrowserDownload })
           })
 
           if (!response.ok) {
