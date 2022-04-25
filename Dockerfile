@@ -15,7 +15,11 @@ ADD package.json package-lock.json ./
 
 RUN npm i
 
-ADD index.js index.html ./
+ADD src tsconfig.json ./
+
+RUN npx tsc index.ts
+
+ADD index.html ./
 
 USER nobody
 CMD node .
