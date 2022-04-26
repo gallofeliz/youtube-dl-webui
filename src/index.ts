@@ -1,27 +1,33 @@
-const runProcess = require('js-libs/process').default
-const createLogger = require('js-libs/logger').default
-const HttpServer = require('js-libs/http-server').default
-const loadConfig = require('js-libs/config').default
+import runProcess, {Process} from 'js-libs/process'
+import createLogger from 'js-libs/logger'
+import HttpServer from 'js-libs/http-server'
+import loadConfig from 'js-libs/config'
 import { Job, JobsManager } from 'js-libs/jobs'
-const { handleExitSignals } = require('js-libs/exit-handle')
+import { handleExitSignals } from 'js-libs/exit-handle'
 const { once } = require('events')
 const tmpdir = require('os').tmpdir()
-const config = loadConfig({})
+const config = loadConfig<Config>({})
 const logger = createLogger(config.loglevel || 'info')
 const uuid4 = require('uuid').v4
 const fs = require('fs')
 const fsExtra = require('fs-extra')
+
+interface Config {
+    loglevel?: string
+    port?: number
+}
 
 interface Download {
     urls: string[]
     uid: string
     onlyAudio: boolean
     ignorePlaylists: boolean
-    status: 'YOUTUBE-QUEUE' | 'YOUTUBE-DOWNLOADING' | 'YOUTUBE-ERROR' | 'READY' | 'BROWSER-DOWNLOAD' | 'DONE',
+    status: 'YOUTUBE-QUEUE' | 'YOUTUBE-DOWNLOADING' | 'YOUTUBE-ERROR' | 'READY' | 'BROWSER-DOWNLOAD' | 'DONE' | 'CANCELED',
     youtubeJob: Job
     workdir: string,
     targetFile?: string
     autoBrowserDownload: boolean
+    doneOrCanceledAt?: Date
 }
 
 type DownloadRequest = Pick<Download, 'urls' | 'onlyAudio' | 'ignorePlaylists' | 'autoBrowserDownload'>
@@ -33,7 +39,7 @@ const downloadManager = new JobsManager(logger)
     const httpServer = new HttpServer({
         logger,
         port: config.port || 80,
-        webUiFilesPath: __dirname,
+        webUiFilesPath: __dirname + '/..',
         api: {
             routes: [
                 {
@@ -67,6 +73,10 @@ const downloadManager = new JobsManager(logger)
                                             ],
                                             logger: job.getLogger(),
                                             cwd: workdir
+                                        })
+
+                                        job.once('abort', () => {
+                                            downloadProcess.abort()
                                         })
 
                                         await once(downloadProcess, 'finish')
@@ -120,6 +130,30 @@ const downloadManager = new JobsManager(logger)
                 },
                 {
                     method: 'get',
+                    path: '/cancel/:uid',
+                    async handler(req, res) {
+                        const uid = req.params.uid as string
+                        const download = downloads.find(d => d.uid === uid)!
+
+                        if (download.youtubeJob.getState() === 'new') {
+                            download.youtubeJob.cancel()
+                        } else {
+                            download.youtubeJob.abort()
+                        }
+
+                        try {
+                            await download.youtubeJob.getResult()
+                        } catch (e) {
+                        }
+
+                        fsExtra.removeSync(download.workdir)
+
+                        download.status = 'CANCELED'
+                        download.doneOrCanceledAt = new Date
+                    }
+                },
+                {
+                    method: 'get',
                     path: '/download/:uid',
                     async handler(req, res) {
                         const uid = req.params.uid as string
@@ -141,11 +175,7 @@ const downloadManager = new JobsManager(logger)
 
                         fsExtra.removeSync(download.workdir)
                         download.status = 'DONE'
-
-                        // Bad way ... Blocks the process stop
-                        setTimeout(() => {
-                            downloads.splice(downloads.indexOf(download), 1)
-                        }, 1000 * 60)
+                        download.doneOrCanceledAt = new Date
 
                         res.end()
                     }
@@ -158,7 +188,7 @@ const downloadManager = new JobsManager(logger)
     downloadManager.start()
     logger.info('Started !')
 
-    let updateProcess
+    let updateProcess: Process | null
 
     async function updateYtdl() {
         if (updateProcess) {
@@ -182,6 +212,24 @@ const downloadManager = new JobsManager(logger)
         }
     }
 
+    function removeOldDownloads() {
+        const currentDate = (new Date).getTime()
+
+        const toRemove = downloads.filter(download => {
+            if (!download.doneOrCanceledAt) {
+                return false
+            }
+
+            return download.doneOrCanceledAt.getTime() + (1000 * 60 * 5) < currentDate
+        })
+
+        toRemove.forEach(download => {
+            downloads.splice(downloads.indexOf(download), 1)
+        })
+    }
+
+    const removeOldDownloadsInterval = setInterval(removeOldDownloads, 1000 * 60)
+
     const updateInterval = setInterval(updateYtdl, 1000 * 60 * 60 * 24) // 1 day
 
     updateYtdl()
@@ -191,6 +239,7 @@ const downloadManager = new JobsManager(logger)
         httpServer.stop()
         downloadManager.stop()
         clearInterval(updateInterval)
+        clearInterval(removeOldDownloadsInterval)
         if (updateProcess) {
             updateProcess.abort()
         }

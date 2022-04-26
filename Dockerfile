@@ -17,9 +17,11 @@ RUN npm i
 
 ADD src tsconfig.json ./
 
-RUN npx tsc index.ts
+RUN npx tsc
+
+RUN ls -la
 
 ADD index.html ./
 
 USER nobody
-CMD node .
+CMD node dist
