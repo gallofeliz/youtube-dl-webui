@@ -18,7 +18,12 @@
       <div class="checkbox mb-3 mt-2">
           <label><input type="checkbox" name="onlyAudio" value="true" /> Only audio</label>
           <label><input type="checkbox" name="ignorePlaylists" value="true" checked /> Ignore Playlists</label>
-          <label><input type="checkbox" name="autoBrowserDownload" value="true" checked /> Auto Browser Download</label>
+          <label><input type="checkbox" name="autoBrowserDownload" value="true" /> Auto Browser Download</label>
+          <label>Video Quality <select name="videoQuality">
+            <option value="best">Best</option>
+            <option value="fhd">Full HD</option>
+            <option value="hd">HD</option>
+          </select></label>
       </div>
       <button class="btn btn-lg btn-primary btn-block" id="submit">Download</button>
 
@@ -35,6 +40,10 @@
       const textarea = document.querySelector('#inputUrls')
       const scrollOffsetDiff = Math.abs(textarea.scrollHeight - textarea.offsetHeight)
       textarea.style.minHeight = textarea.offsetHeight + 'px'
+
+      document.querySelector('input[name="onlyAudio"]').onchange = function() {
+        document.querySelector('select[name="videoQuality"]').disabled = this.checked
+      }
 
       textarea.oninput = () => {
         textarea.style.height = (textarea.scrollHeight + scrollOffsetDiff) + 'px'
@@ -127,12 +136,13 @@
         const onlyAudio = document.querySelector('input[name="onlyAudio"]').checked
         const ignorePlaylists = document.querySelector('input[name="ignorePlaylists"]').checked
         const autoBrowserDownload = document.querySelector('input[name="autoBrowserDownload"]').checked
+        const videoQuality = document.querySelector('select[name="videoQuality"]').value
 
         try {
           const response = await fetch('/download', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ urls, onlyAudio, ignorePlaylists, autoBrowserDownload })
+            body: JSON.stringify({ urls, onlyAudio, ignorePlaylists, autoBrowserDownload, videoQuality })
           })
 
           if (!response.ok) {

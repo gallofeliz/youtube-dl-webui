@@ -28,9 +28,10 @@ interface Download {
     targetFile?: string
     autoBrowserDownload: boolean
     doneOrCanceledAt?: Date
+    videoQuality: string
 }
 
-type DownloadRequest = Pick<Download, 'urls' | 'onlyAudio' | 'ignorePlaylists' | 'autoBrowserDownload'>
+type DownloadRequest = Pick<Download, 'urls' | 'onlyAudio' | 'ignorePlaylists' | 'autoBrowserDownload' | 'videoQuality'>
 
 const downloads: Download[] = []
 const downloadManager = new JobsManager(logger)
@@ -63,11 +64,30 @@ const downloadManager = new JobsManager(logger)
                                     try {
                                         fs.mkdirSync(workdir)
 
+                                        const format = (() => {
+                                            if (download.onlyAudio) {
+                                                // I can't accept bad audio !
+                                                return
+                                            }
+                                            switch (download.videoQuality) {
+                                                case 'best':
+                                                    return 'bestvideo*+bestaudio/best'
+                                                case 'fhd':
+                                                    return 'bv*[height<=1080]+ba/b[height<=1080] / wv*+ba/w'
+                                                case 'hd':
+                                                    return 'bv*[height<=720]+ba/b[height<=720] / wv*+ba/w'
+                                                // Less is useless !!!! Better only listen :)
+                                                default:
+                                                    throw new Error('Unknown videoQuality')
+                                            }
+                                        })()
+
                                         const downloadProcess = runProcess({
                                             cmd: 'yt-dlp',
                                             args: [
                                                 ...download.urls,
                                                 ...download.onlyAudio ? ['-x'] : [],
+                                                ...format ? ['-f', format] : [],
                                                 ...download.ignorePlaylists ? ['--no-playlist'] : [],
                                                 '--abort-on-error'
                                             ],
