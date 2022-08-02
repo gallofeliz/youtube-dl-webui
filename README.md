@@ -8,7 +8,7 @@ A simple Web UI to download Video/Sound from youtube and others platforms.
 
 ![PREVIEW](snapshot.png)
 
-## Demo (some versions ago)
+## Demo (some versions ago)
 
 ![DEMO](demo.gif)
 
