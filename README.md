@@ -4,11 +4,13 @@ Keys: download videos and audio for many platforms + webui + multi urls and play
 
 A simple Web UI to download Video/Sound from youtube and others platforms.
 
-![DEMO](demo.gif)
-
 ## Updated interface
 
 ![PREVIEW](snapshot.png)
+
+## Demo (some versions ago)
+
+![DEMO](demo.gif)
 
 ## Alternatives
 
