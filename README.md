@@ -1,10 +1,14 @@
 # youtube-dl-webui
 
-Keys: download videos and audio for many platforms + webui + multi urls and playlists + download to your browser + ytb-dl auto-update + Docker native + light + Raspberry PI Compatible
+Keys: download videos and audio for many platforms + webui + multi urls and playlists + download to your browser + video quality selection + ytb-dl auto-update + Docker native + light + Raspberry PI Compatible
 
 A simple Web UI to download Video/Sound from youtube and others platforms.
 
 ![DEMO](demo.gif)
+
+## Updated interface
+
+![PREVIEW](snapshot.png)
 
 ## Alternatives
 
