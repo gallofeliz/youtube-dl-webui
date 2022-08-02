@@ -11,19 +11,20 @@
   </head>
 
   <body class="text-center">
-    <div class="form-signin" style="width: 600px; margin: auto; margin-top: 50px;">
+    <div class="form-signin" style="width: 630px; margin: auto; margin-top: 50px;">
       <h1 class="h3 mb-3 font-weight-normal">Download video/audio(s)</h1>
       <label for="inputUrls" class="sr-only">Youtube (or not) Url(s)</label>
       <textarea id="inputUrls" name="urls" class="form-control" placeholder="Youtube (or not) Url(s)" required autofocus></textarea>
       <div class="checkbox mb-3 mt-2">
           <label><input type="checkbox" name="onlyAudio" value="true" /> Only audio</label>
-          <label><input type="checkbox" name="ignorePlaylists" value="true" checked /> Ignore Playlists</label>
-          <label><input type="checkbox" name="autoBrowserDownload" value="true" /> Auto Browser Download</label>
-          <label>Video Quality <select name="videoQuality">
+          | <label><input type="checkbox" name="ignorePlaylists" value="true" checked /> Ignore Playlists</label>
+          | <label><input type="checkbox" name="autoBrowserDownload" value="true" /> Auto Browser Download</label>
+          | <label>Video Quality <select name="videoQuality">
             <option value="best">Best</option>
             <option value="fhd">Full HD</option>
             <option value="hd">HD</option>
           </select></label>
+
       </div>
       <button class="btn btn-lg btn-primary btn-block" id="submit">Download</button>
 
