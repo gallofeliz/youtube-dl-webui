@@ -21,7 +21,7 @@
           | <label><input type="checkbox" name="autoBrowserDownload" value="true" /> Auto Browser Download</label>
           | <label>Video Quality <select name="videoQuality">
             <option value="best">Best</option>
-            <option value="fhd">Full HD</option>
+            <option value="fhd" selected>Full HD</option>
             <option value="hd">HD</option>
           </select></label>
 
@@ -130,6 +130,10 @@
 
       refreshList()
 
+      function resetSubmitable() {
+        document.querySelector('#inputUrls').value = ''
+      }
+
       setInterval(refreshList, 1000 * 10)
 
       document.querySelector('#submit').onclick = async function () {
@@ -151,6 +155,7 @@
           }
 
           refreshList()
+          resetSubmitable()
         } catch (e) {
           alert(e.toString())
         }
