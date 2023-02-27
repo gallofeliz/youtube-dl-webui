@@ -1,13 +1,13 @@
-import runProcess, {Process} from 'js-libs/process'
-import createLogger from 'js-libs/logger'
-import HttpServer from 'js-libs/http-server'
-import loadConfig from 'js-libs/config'
-import { Job, JobsManager } from 'js-libs/jobs'
-import { handleExitSignals } from 'js-libs/exit-handle'
+import runProcess, {Process} from '@gallofeliz/js-libs/process'
+import createLogger from '@gallofeliz/js-libs/logger'
+import HttpServer from '@gallofeliz/js-libs/http-server'
+import loadConfig from '@gallofeliz/js-libs/config'
+import { Job, JobsRunner } from '@gallofeliz/js-libs/jobs'
+import { handleExitSignals } from '@gallofeliz/js-libs/exit-handle'
 const { once } = require('events')
 const tmpdir = require('os').tmpdir()
-const config = loadConfig<Config>({})
-const logger = createLogger(config.loglevel || 'info')
+const config = loadConfig<Config, Config>({})
+const logger = createLogger(config.loglevel as any || 'info')
 const uuid4 = require('uuid').v4
 const fs = require('fs')
 const fsExtra = require('fs-extra')
@@ -34,7 +34,7 @@ interface Download {
 type DownloadRequest = Pick<Download, 'urls' | 'onlyAudio' | 'ignorePlaylists' | 'autoBrowserDownload' | 'videoQuality'>
 
 const downloads: Download[] = []
-const downloadManager = new JobsManager(logger)
+const downloadManager = new JobsRunner({logger})
 
 ;(async () => {
     const httpServer = new HttpServer({
@@ -56,11 +56,13 @@ const downloadManager = new JobsManager(logger)
                             workdir,
                             status: 'YOUTUBE-QUEUE',
                             youtubeJob: new Job({
-                                operation: 'yt-download',
-                                trigger: null,
-                                subjects: {uid: uid},
+                                id: {
+                                    operation: 'yt-download',
+                                    trigger: null,
+                                    subjects: {uid: uid}
+                                },
                                 logger,
-                                async fn(job) {
+                                async fn({logger, abortSignal}) {
                                     try {
                                         fs.mkdirSync(workdir)
 
@@ -91,12 +93,9 @@ const downloadManager = new JobsManager(logger)
                                                 ...download.ignorePlaylists ? ['--no-playlist'] : [],
                                                 '--abort-on-error'
                                             ],
-                                            logger: job.getLogger(),
-                                            cwd: workdir
-                                        })
-
-                                        job.once('abort', () => {
-                                            downloadProcess.abort()
+                                            logger,
+                                            cwd: workdir,
+                                            abortSignal
                                         })
 
                                         await once(downloadProcess, 'finish')
@@ -133,11 +132,19 @@ const downloadManager = new JobsManager(logger)
                         }
 
                         download.youtubeJob.once('running', () => download.status = 'YOUTUBE-DOWNLOADING')
-                        download.youtubeJob.once('success', () => download.status = 'READY')
-                        download.youtubeJob.once('failure', () => download.status = 'YOUTUBE-ERROR')
+                        download.youtubeJob.once('done',    () => download.status = 'READY')
+                        download.youtubeJob.once('error',   () => {
+                            if (download.youtubeJob.getState() === 'aborted') {
+                                download.status = 'CANCELED'
+                                download.doneOrCanceledAt = new Date
+                            } else {
+                                download.status = 'YOUTUBE-ERROR'
+                            }
+                            fsExtra.removeSync(download.workdir)
+                        })
 
                         downloads.push(download)
-                        downloadManager.addJob(download.youtubeJob)
+                        downloadManager.run(download.youtubeJob)
                         res.end()
                     }
                 },
@@ -156,20 +163,13 @@ const downloadManager = new JobsManager(logger)
                         const download = downloads.find(d => d.uid === uid)!
 
                         if (download.youtubeJob.getState() === 'new') {
-                            download.youtubeJob.cancel()
+                            download.youtubeJob.cancel('api canceled')
                         } else {
-                            download.youtubeJob.abort()
+                            download.youtubeJob.abort('api canceled')
                         }
 
-                        try {
-                            await download.youtubeJob.getResult()
-                        } catch (e) {
-                        }
-
-                        fsExtra.removeSync(download.workdir)
-
-                        download.status = 'CANCELED'
-                        download.doneOrCanceledAt = new Date
+                        // Shitty haha
+                        await new Promise((resolve) => setTimeout(resolve, 50))
                     }
                 },
                 {
