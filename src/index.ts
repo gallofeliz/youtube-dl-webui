@@ -208,30 +208,6 @@ const downloadManager = new JobsRunner({logger})
     downloadManager.start()
     logger.info('Started !')
 
-    let updateProcess: Process | null
-
-    async function updateYtdl() {
-        if (updateProcess) {
-            logger.warning('Update already running ???')
-            return
-        }
-
-        updateProcess = runProcess({
-            cmd: 'yt-dlp',
-            args: ['--update'],
-            logger,
-            outputType: 'text'
-        })
-
-        try {
-            await once(updateProcess, 'finish')
-        } catch (e) {
-            logger.warning('Update failed', {e})
-        } finally {
-            updateProcess = null
-        }
-    }
-
     function removeOldDownloads() {
         const currentDate = (new Date).getTime()
 
@@ -250,19 +226,11 @@ const downloadManager = new JobsRunner({logger})
 
     const removeOldDownloadsInterval = setInterval(removeOldDownloads, 1000 * 60)
 
-    const updateInterval = setInterval(updateYtdl, 1000 * 60 * 60 * 24) // 1 day
-
-    updateYtdl()
-
     handleExitSignals(() => {
         logger.info('Exit Signal received. Stopping...')
         httpServer.stop()
         downloadManager.stop()
-        clearInterval(updateInterval)
         clearInterval(removeOldDownloadsInterval)
-        if (updateProcess) {
-            updateProcess.abort()
-        }
     })
 
 })()
