@@ -93,6 +93,7 @@
 
             cancelAction.onclick = async () => {
               await fetch('/cancel/' + download.uid)
+              setTimeout(refreshList, 100)
             }
           }
 

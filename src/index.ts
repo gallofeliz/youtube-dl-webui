@@ -164,12 +164,16 @@ const downloadManager = new JobsRunner({logger})
 
                         if (download.youtubeJob.getState() === 'new') {
                             download.youtubeJob.cancel('api canceled')
+                        } else if (download.status === 'YOUTUBE-ERROR') {
+                            download.status = 'CANCELED'
+                            download.doneOrCanceledAt = new Date
                         } else {
                             download.youtubeJob.abort('api canceled')
                         }
 
                         // Shitty haha
                         await new Promise((resolve) => setTimeout(resolve, 50))
+                        res.end()
                     }
                 },
                 {
