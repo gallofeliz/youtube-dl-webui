@@ -1,6 +1,6 @@
 FROM node:lts-alpine3.18
 
-RUN apk add --no-cache tzdata ffmpeg supervisor && wget -o /usr/local/bin https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp
+RUN apk add --no-cache tzdata ffmpeg supervisor && wget -o /usr/local/bin/yt-dlp https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp
 
 WORKDIR /app
 
