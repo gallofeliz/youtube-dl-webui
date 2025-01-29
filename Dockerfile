@@ -2,6 +2,8 @@ FROM node:lts-alpine3.18
 
 RUN apk add --no-cache tzdata ffmpeg supervisor && wget -O /usr/local/bin/yt-dlp https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp && chmod +x /usr/local/bin/yt-dlp
 
+RUN python3 -m pip install mutagen
+
 WORKDIR /app
 
 ADD package.json package-lock.json ./
