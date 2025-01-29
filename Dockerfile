@@ -16,7 +16,7 @@ RUN npx tsc
 
 RUN ls -la
 
-ADD index.html ./
+ADD index.html logo_w300.jpeg ./
 
 COPY supervisord.conf /etc/supervisor.d/supervisord.ini
 
