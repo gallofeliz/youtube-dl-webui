@@ -4,4 +4,6 @@
 
 A simple Web UI to download Video/Sound from youtube and others platforms. Based on https://github.com/yt-dlp/yt-dlp
 
-![PREVIEW](snapshot.png)
+<p align="center">
+    <img height="300" src="https://raw.githubusercontent.com/gallolabs/media-downloader/master/snapshot.png">
+</p>
