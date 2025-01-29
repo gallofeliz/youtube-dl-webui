@@ -1,5 +1,5 @@
 <p align="center">
-    <img height="300" src="https://raw.githubusercontent.com/gallolabs/gallolabs/media-downloader/master/logo_w300.jpeg">
+    <img height="300" src="https://raw.githubusercontent.com/gallolabs/media-downloader/master/logo_w300.jpeg">
   <h1 align="center">Media Downloader</h1>
 </p>
 
