@@ -88,12 +88,10 @@ const downloadManager = new JobsRunner({logger})
                                             cmd: 'yt-dlp',
                                             args: [
                                                 ...download.urls,
-                                                ...download.onlyAudio ? ['-x'] : [],
+                                                ...download.onlyAudio ? ['-x', '--embed-thumbnail'] : ['--embed-subs'],
                                                 ...format ? ['-f', format] : [],
                                                 ...download.ignorePlaylists ? ['--no-playlist'] : [],
                                                 '--abort-on-error',
-                                                '--embed-thumbnail',
-                                                '--embed-subs',
                                                 '--embed-metadata'
                                             ],
                                             logger,
