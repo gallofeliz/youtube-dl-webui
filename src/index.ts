@@ -91,7 +91,10 @@ const downloadManager = new JobsRunner({logger})
                                                 ...download.onlyAudio ? ['-x'] : [],
                                                 ...format ? ['-f', format] : [],
                                                 ...download.ignorePlaylists ? ['--no-playlist'] : [],
-                                                '--abort-on-error'
+                                                '--abort-on-error',
+                                                '--embed-thumbnail',
+                                                '--embed-subs',
+                                                '--embed-metadata'
                                             ],
                                             logger,
                                             cwd: workdir,
