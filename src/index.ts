@@ -22,7 +22,7 @@ interface Download {
     uid: string
     onlyAudio: boolean
     ignorePlaylists: boolean
-    status: 'YOUTUBE-QUEUE' | 'YOUTUBE-DOWNLOADING' | 'YOUTUBE-ERROR' | 'READY' | 'BROWSER-DOWNLOAD' | 'DONE' | 'CANCELED',
+    status: 'QUEUE' | 'REMOTE-DOWNLOADING' | 'REMOTE-ERROR' | 'READY' | 'BROWSER-DOWNLOAD' | 'DONE' | 'CANCELED',
     youtubeJob: Job
     workdir: string,
     targetFile?: string
@@ -54,7 +54,7 @@ const downloadManager = new JobsRunner({logger})
                             ...req.body as DownloadRequest,
                             uid,
                             workdir,
-                            status: 'YOUTUBE-QUEUE',
+                            status: 'QUEUE',
                             youtubeJob: new Job({
                                 id: {
                                     operation: 'yt-download',
@@ -88,7 +88,9 @@ const downloadManager = new JobsRunner({logger})
                                             cmd: 'yt-dlp',
                                             args: [
                                                 ...download.urls,
-                                                ...download.onlyAudio ? ['-x', '--embed-thumbnail', '--embed-subs', '--convert-subs', 'srt', '--sub-langs', 'all'] : ['--embed-subs', '--sub-format', 'best', '--sub-langs', 'all'],
+                                                ...download.onlyAudio
+                                                    ? ['-x', '--embed-thumbnail', '--embed-subs', '--convert-subs', 'srt', '--sub-langs', 'all']
+                                                    : ['--embed-subs', '--sub-format', 'best', '--sub-langs', 'all'],
                                                 ...format ? ['-f', format] : [],
                                                 ...download.ignorePlaylists ? ['--no-playlist'] : [],
                                                 '--abort-on-error',
@@ -109,12 +111,12 @@ const downloadManager = new JobsRunner({logger})
                                                 cwd: workdir,
                                                 logger,
                                                 cmd: 'tar',
-                                                args: ['-cf', 'videos.tar', ...files]
+                                                args: ['-cf', 'your-downloaded-medias.tar', ...files]
                                             })
 
                                             await once(tarProcess, 'finish')
 
-                                            download.targetFile = 'videos.tar'
+                                            download.targetFile = 'your-downloaded-medias.tar'
 
                                             // clean the files as soon as possible to free space
                                             files.forEach((file: string) => {
@@ -132,14 +134,14 @@ const downloadManager = new JobsRunner({logger})
                             })
                         }
 
-                        download.youtubeJob.once('running', () => download.status = 'YOUTUBE-DOWNLOADING')
+                        download.youtubeJob.once('running', () => download.status = 'REMOTE-DOWNLOADING')
                         download.youtubeJob.once('done',    () => download.status = 'READY')
                         download.youtubeJob.once('error',   () => {
                             if (download.youtubeJob.getState() === 'aborted') {
                                 download.status = 'CANCELED'
                                 download.doneOrCanceledAt = new Date
                             } else {
-                                download.status = 'YOUTUBE-ERROR'
+                                download.status = 'REMOTE-ERROR'
                             }
                             fsExtra.removeSync(download.workdir)
                         })
@@ -165,7 +167,7 @@ const downloadManager = new JobsRunner({logger})
 
                         if (download.youtubeJob.getState() === 'new') {
                             download.youtubeJob.cancel('api canceled')
-                        } else if (download.status === 'YOUTUBE-ERROR' || download.status === 'READY') {
+                        } else if (download.status === 'REMOTE-ERROR' || download.status === 'READY') {
                             download.status = 'CANCELED'
                             download.doneOrCanceledAt = new Date
                         } else {
