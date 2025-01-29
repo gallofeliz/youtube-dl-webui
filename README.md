@@ -1,4 +1,7 @@
-# Media Downloader
+<p align="center">
+    <img height="300" src="https://raw.githubusercontent.com/gallolabs/gallolabs/media-downloader/master/logo_w300.jpeg">
+  <h1 align="center">Media Downloader</h1>
+</p>
 
 Keys: download videos and audio for many platforms + webui + multi urls and playlists + download to your browser + video quality selection + ytb-dl auto-update + Docker native + light + Raspberry PI Compatible
 
