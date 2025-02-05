@@ -8,4 +8,4 @@ A simple Web UI to download Video/Sound from various platforms, such as Youtube,
     <img height="300" src="https://raw.githubusercontent.com/gallolabs/media-downloader/master/snapshot.png">
 </p>
 
-Disclaimer : This tool is provided as an API/UI front-end extension to yt-dlp; you are responsible for the use you make of it: check that you are not violating the laws or the T&Cs/EULA of the media, its host or its owner that you wish to download.
+*Disclaimer : This tool is provided as an API/UI front-end extension to yt-dlp; you are responsible for the use you make of it: check that you are not violating the laws or the T&Cs/EULA of the media, its host or its owner that you wish to download.*
